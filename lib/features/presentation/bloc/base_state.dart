@@ -11,6 +11,8 @@ class APIFailureState<K> extends BaseState<K> {
 }
 class APILoadingState<K> extends BaseState<K> {}
 
+class UploadLoadingState<K> extends BaseState<K> {}
+
 class ConnectionFailureState<K> extends BaseState<K> {
   final String error;
 
