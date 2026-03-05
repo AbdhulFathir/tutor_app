@@ -1,3 +1,5 @@
+import 'package:cloud_firestore/cloud_firestore.dart';
+import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
@@ -5,7 +7,6 @@ import 'package:flutter_screenutil/flutter_screenutil.dart';
 import '../../../../../core/theme/theme_data.dart';
 import '../../../../../utils/enums.dart';
 import '../../../../../utils/navigation_routes.dart';
-import '../../../../tutor/models/student.dart';
 import '../../../../tutor/state/tutor_state.dart';
 import '../../../widgets/common_app_bar.dart';
 import '../../../widgets/common_button.dart';
@@ -30,6 +31,8 @@ class _AddStudentViewState extends ConsumerState<AddStudentView> {
 
   String? _username;
   String? _password;
+  String? _selectedClassGroupId;
+  bool _isSubmitting = false;
 
   @override
   void dispose() {
@@ -120,7 +123,8 @@ class _AddStudentViewState extends ConsumerState<AddStudentView> {
                       child: DropdownButton<String>(
                         value: store.classGroups.isEmpty
                             ? null
-                            : store.classGroups.first.id,
+                            : _selectedClassGroupId ??
+                                store.classGroups.first.id,
                         items: store.classGroups
                             .map(
                               (g) => DropdownMenuItem<String>(
@@ -129,7 +133,11 @@ class _AddStudentViewState extends ConsumerState<AddStudentView> {
                               ),
                             )
                             .toList(),
-                        onChanged: (_) {},
+                        onChanged: (value) {
+                          setState(() {
+                            _selectedClassGroupId = value;
+                          });
+                        },
                         isExpanded: true,
                       ),
                     ),
@@ -184,6 +192,7 @@ class _AddStudentViewState extends ConsumerState<AddStudentView> {
                   32.verticalSpace,
                   CommonButton(
                     text: 'Add',
+                    isLoading: _isSubmitting,
                     onPressed: _onSubmit,
                   ),
                   24.verticalSpace,
@@ -267,7 +276,7 @@ class _AddStudentViewState extends ConsumerState<AddStudentView> {
     );
   }
 
-  void _onSubmit() {
+  void _onSubmit() async {
     if (!_formKey.currentState!.validate()) return;
     if (_username == null || _password == null) {
       showDialog(
@@ -281,37 +290,103 @@ class _AddStudentViewState extends ConsumerState<AddStudentView> {
       return;
     }
 
-    final notifier = ref.read(tutorStoreProvider.notifier);
-    notifier.addStudent(
-      Student(
-        id: DateTime.now().millisecondsSinceEpoch.toString(),
-        firstName: _firstNameController.text.trim(),
-        lastName: _lastNameController.text.trim(),
-        phoneNumber: _phoneController.text.trim(),
-        email: _emailController.text.trim(),
-        grade: _gradeController.text.trim(),
-        username: _username!,
-        password: _password!,
-      ),
-    );
+    if (_isSubmitting) return;
 
-    showDialog(
-      context: context,
-      barrierDismissible: false,
-      builder: (_) => AppDialog(
-        title: 'Success',
-        description: 'Student added successfully.',
-        alertType: AlertType.SUCCESS,
-        positiveButtonText: 'Done',
-        onPositiveCallback: () {
-          Navigator.pop(context);
-          Navigator.popUntil(
-            context,
-            ModalRoute.withName(Routes.kTutorManageStudentsView),
-          );
-        },
-      ),
-    );
+    setState(() {
+      _isSubmitting = true;
+    });
+
+    final firstName = _firstNameController.text.trim();
+    final lastName = _lastNameController.text.trim();
+    final phone = _phoneController.text.trim();
+    final email = _emailController.text.trim();
+    final registrationId = _username!.trim();
+
+    final store = ref.read(tutorStoreProvider);
+    String groupName = '';
+    if (store.classGroups.isNotEmpty) {
+      final selectedId =
+          _selectedClassGroupId ?? store.classGroups.first.id;
+      groupName = store.classGroups
+          .firstWhere(
+            (g) => g.id == selectedId,
+            orElse: () => store.classGroups.first,
+          )
+          .name;
+    }
+
+    try {
+      final auth = FirebaseAuth.instance;
+      final credential =
+          await auth.createUserWithEmailAndPassword(
+        email: email,
+        password: _password!,
+      );
+
+      final uid = credential.user?.uid;
+      if (uid == null) {
+        throw Exception('Unable to create user');
+      }
+
+      await FirebaseFirestore.instance
+          .collection('users')
+          .doc(uid)
+          .set({
+        'email': email,
+        'first_name': firstName,
+        'last_name': lastName,
+        'phone_number': phone,
+        'group': groupName,
+        'id': registrationId,
+        'joined_date': DateTime.now().toIso8601String(),
+        'profile_image': '',
+        'uid': uid,
+      });
+
+      showDialog(
+        context: context,
+        barrierDismissible: false,
+        builder: (_) => AppDialog(
+          title: 'Success',
+          description: 'Student added successfully.',
+          alertType: AlertType.SUCCESS,
+          positiveButtonText: 'Done',
+          onPositiveCallback: () {
+            Navigator.pop(context);
+            Navigator.popUntil(
+              context,
+              ModalRoute.withName(Routes.kTutorManageStudentsView),
+            );
+          },
+        ),
+      );
+    } on FirebaseAuthException catch (e) {
+      showDialog(
+        context: context,
+        builder: (_) => AppDialog(
+          title: 'Failed',
+          description:
+              e.message ?? 'Unable to create student account.',
+          alertType: AlertType.FAIL,
+        ),
+      );
+    } catch (_) {
+      showDialog(
+        context: context,
+        builder: (_) => const AppDialog(
+          title: 'Failed',
+          description:
+              'Something went wrong while adding the student.',
+          alertType: AlertType.FAIL,
+        ),
+      );
+    } finally {
+      if (mounted) {
+        setState(() {
+          _isSubmitting = false;
+        });
+      }
+    }
   }
 }
 
