@@ -1,11 +1,10 @@
+import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 
 import '../../../../../core/theme/theme_data.dart';
 import '../../../../../utils/enums.dart';
-import '../../../../tutor/models/class_group.dart';
-import '../../../../tutor/state/tutor_state.dart';
 import '../../../widgets/common_app_bar.dart';
 import '../../../widgets/common_button.dart';
 import '../../../widgets/common_text_field.dart';
@@ -16,27 +15,67 @@ class ManageClassGroupsView extends ConsumerWidget {
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
-    final store = ref.watch(tutorStoreProvider);
-
     return Scaffold(
       backgroundColor: colors(context).surface,
       appBar: const CommonAppBar(title: 'Class Groups'),
       floatingActionButton: FloatingActionButton(
-        onPressed: () => _showAddGroupSheet(context, ref),
+        onPressed: () => _showAddGroupSheet(context),
         child: const Icon(Icons.add),
       ),
       body: SafeArea(
         child: Padding(
           padding: EdgeInsets.symmetric(horizontal: 24.w, vertical: 16.h),
-          child: ListView.separated(
-            itemCount: store.classGroups.length,
-            separatorBuilder: (_, __) => 10.verticalSpace,
-            itemBuilder: (context, index) {
-              final group = store.classGroups[index];
-              final count = store.students
-                  .where((s) => s.classGroupId == group.id)
-                  .length;
-              return _GroupCard(group: group, studentCount: count);
+          child: StreamBuilder<QuerySnapshot<Map<String, dynamic>>>(
+            stream: FirebaseFirestore.instance
+                .collection('groups')
+                .orderBy('group')
+                .snapshots(),
+            builder: (context, snapshot) {
+              if (snapshot.connectionState == ConnectionState.waiting) {
+                return const Center(child: CircularProgressIndicator());
+              }
+
+              if (snapshot.hasError) {
+                return Center(
+                  child: Text(
+                    'Failed to load groups.',
+                    style: TextStyle(
+                      color: colors(context).secondaryText,
+                      fontSize: 13.sp,
+                    ),
+                  ),
+                );
+              }
+
+              final docs = snapshot.data?.docs ?? [];
+              if (docs.isEmpty) {
+                return Center(
+                  child: Text(
+                    'No groups yet. Tap + to add.',
+                    style: TextStyle(
+                      color: colors(context).secondaryText,
+                      fontSize: 13.sp,
+                    ),
+                  ),
+                );
+              }
+
+              final groups = docs.map((d) {
+                final data = d.data();
+                return _GroupItem(
+                  id: d.id,
+                  name: (data['group'] ?? '').toString(),
+                );
+              }).toList();
+
+              return ListView.separated(
+                itemCount: groups.length,
+                separatorBuilder: (_, __) => 10.verticalSpace,
+                itemBuilder: (context, index) {
+                  final group = groups[index];
+                  return _GroupCard(group: group);
+                },
+              );
             },
           ),
         ),
@@ -44,7 +83,7 @@ class ManageClassGroupsView extends ConsumerWidget {
     );
   }
 
-  void _showAddGroupSheet(BuildContext context, WidgetRef ref) {
+  void _showAddGroupSheet(BuildContext context) {
     final controller = TextEditingController();
     showModalBottomSheet(
       context: context,
@@ -81,10 +120,14 @@ class ManageClassGroupsView extends ConsumerWidget {
               24.verticalSpace,
               CommonButton(
                 text: 'Add',
-                onPressed: () {
+                onPressed: () async {
                   final name = controller.text.trim();
                   if (name.isEmpty) return;
-                  ref.read(tutorStoreProvider.notifier).addClassGroup(name);
+
+                  await FirebaseFirestore.instance
+                      .collection('groups')
+                      .add({'group': name});
+
                   Navigator.pop(context);
                   showDialog(
                     context: context,
@@ -104,17 +147,15 @@ class ManageClassGroupsView extends ConsumerWidget {
   }
 }
 
-class _GroupCard extends ConsumerWidget {
-  final ClassGroup group;
-  final int studentCount;
+class _GroupCard extends StatelessWidget {
+  final _GroupItem group;
 
   const _GroupCard({
     required this.group,
-    required this.studentCount,
   });
 
   @override
-  Widget build(BuildContext context, WidgetRef ref) {
+  Widget build(BuildContext context) {
     return Container(
       padding: EdgeInsets.symmetric(horizontal: 16.w, vertical: 14.h),
       decoration: BoxDecoration(
@@ -138,7 +179,7 @@ class _GroupCard extends ConsumerWidget {
                 ),
                 4.verticalSpace,
                 Text(
-                  '$studentCount students',
+                  'Tap to view students',
                   style: TextStyle(
                     color: colors(context).secondaryText,
                     fontSize: 12.sp,
@@ -148,19 +189,15 @@ class _GroupCard extends ConsumerWidget {
             ),
           ),
           TextButton(
-            onPressed: () => _showManageSheet(context, ref),
-            child: const Text('Manage'),
+            onPressed: () => _showManageSheet(context),
+            child: const Text('View Details'),
           ),
         ],
       ),
     );
   }
 
-  void _showManageSheet(BuildContext context, WidgetRef ref) {
-    final store = ref.read(tutorStoreProvider);
-    final students =
-        store.students.where((s) => s.classGroupId == group.id).toList();
-
+  void _showManageSheet(BuildContext context) {
     showModalBottomSheet(
       context: context,
       isScrollControlled: true,
@@ -197,41 +234,99 @@ class _GroupCard extends ConsumerWidget {
                 ],
               ),
               8.verticalSpace,
-              if (students.isEmpty)
-                Text(
-                  'No students assigned yet.',
-                  style: TextStyle(
-                    color: colors(context).secondaryText,
-                    fontSize: 12.sp,
-                  ),
-                )
-              else
-                ...students.map(
-                  (s) => ListTile(
-                    contentPadding: EdgeInsets.zero,
-                    title: Text(
-                      s.fullName,
-                      style: TextStyle(
-                        color: colors(context).text,
-                        fontSize: 13.sp,
-                      ),
-                    ),
-                    subtitle: Text(
-                      'Grade ${s.grade}',
-                      style: TextStyle(
-                        color: colors(context).secondaryText,
-                        fontSize: 11.sp,
-                      ),
-                    ),
-                  ),
+              SizedBox(
+                height: 260.h,
+                child: StreamBuilder<QuerySnapshot<Map<String, dynamic>>>(
+                  stream: FirebaseFirestore.instance
+                      .collection('users')
+                      .where('group', isEqualTo: group.name)
+                      .snapshots(),
+                  builder: (context, snapshot) {
+                    if (snapshot.connectionState ==
+                        ConnectionState.waiting) {
+                      return const Center(
+                        child: CircularProgressIndicator(),
+                      );
+                    }
+
+                    if (snapshot.hasError) {
+                      return Center(
+                        child: Text(
+                          'Failed to load students.',
+                          style: TextStyle(
+                            color: colors(context).secondaryText,
+                            fontSize: 12.sp,
+                          ),
+                        ),
+                      );
+                    }
+
+                    final docs = snapshot.data?.docs ?? [];
+                    if (docs.isEmpty) {
+                      return Center(
+                        child: Text(
+                          'No students assigned yet.',
+                          style: TextStyle(
+                            color: colors(context).secondaryText,
+                            fontSize: 12.sp,
+                          ),
+                        ),
+                      );
+                    }
+
+                    return ListView.separated(
+                      itemCount: docs.length,
+                      separatorBuilder: (_, __) => 4.verticalSpace,
+                      itemBuilder: (context, index) {
+                        final doc = docs[index];
+                        final data = doc.data();
+                        final name =
+                            '${data['first_name'] ?? ''} ${data['last_name'] ?? ''}'
+                                .trim();
+                        final regId =
+                            (data['id'] ?? '').toString();
+
+                        return ListTile(
+                          contentPadding: EdgeInsets.zero,
+                          title: Text(
+                            name,
+                            style: TextStyle(
+                              color: colors(context).text,
+                              fontSize: 13.sp,
+                            ),
+                          ),
+                          subtitle: Text(
+                            regId,
+                            style: TextStyle(
+                              color: colors(context).secondaryText,
+                              fontSize: 11.sp,
+                            ),
+                          ),
+                          trailing: IconButton(
+                            icon: const Icon(
+                              Icons.delete_forever,
+                              color: Colors.red,
+                            ),
+                            onPressed: () =>
+                                _confirmRemoveStudentFromGroup(
+                              context,
+                              doc.id,
+                              name,
+                            ),
+                          ),
+                        );
+                      },
+                    );
+                  },
                 ),
+              ),
               16.verticalSpace,
               CommonButton(
                 text: 'Delete Group',
                 backgroundColor: Colors.red,
                 onPressed: () {
                   Navigator.pop(context);
-                  _confirmDeleteGroup(context, ref);
+                  _confirmDeleteGroup(context);
                 },
               ),
             ],
@@ -241,7 +336,7 @@ class _GroupCard extends ConsumerWidget {
     );
   }
 
-  void _confirmDeleteGroup(BuildContext context, WidgetRef ref) {
+  void _confirmDeleteGroup(BuildContext context) {
     showDialog(
       context: context,
       barrierDismissible: false,
@@ -252,11 +347,62 @@ class _GroupCard extends ConsumerWidget {
         alertType: AlertType.FAIL,
         positiveButtonText: 'Delete',
         negativeButtonText: 'Cancel',
-        onPositiveCallback: () {
-          ref.read(tutorStoreProvider.notifier).deleteClassGroup(group.id);
+        onPositiveCallback: () async {
+          final firestore = FirebaseFirestore.instance;
+          final batch = firestore.batch();
+
+          final usersQuery = await firestore
+              .collection('users')
+              .where('group', isEqualTo: group.name)
+              .get();
+
+          for (final doc in usersQuery.docs) {
+            batch.update(doc.reference, {'group': ''});
+          }
+
+          batch.delete(
+            firestore.collection('groups').doc(group.id),
+          );
+
+          await batch.commit();
         },
       ),
     );
   }
+
+  void _confirmRemoveStudentFromGroup(
+    BuildContext context,
+    String userDocId,
+    String studentName,
+  ) {
+    showDialog(
+      context: context,
+      barrierDismissible: false,
+      builder: (_) => AppDialog(
+        title: 'Remove from Group',
+        description:
+            'Remove $studentName from "${group.name}"?',
+        alertType: AlertType.FAIL,
+        positiveButtonText: 'Remove',
+        negativeButtonText: 'Cancel',
+        onPositiveCallback: () async {
+          await FirebaseFirestore.instance
+              .collection('users')
+              .doc(userDocId)
+              .update({'group': ''});
+        },
+      ),
+    );
+  }
+}
+
+class _GroupItem {
+  final String id;
+  final String name;
+
+  _GroupItem({
+    required this.id,
+    required this.name,
+  });
 }
 

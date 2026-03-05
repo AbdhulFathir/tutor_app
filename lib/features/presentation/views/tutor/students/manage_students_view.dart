@@ -11,6 +11,7 @@ import '../../../widgets/app_search_box.dart';
 import '../../../widgets/common_app_bar.dart';
 import '../../../widgets/common_button.dart';
 import '../../../widgets/app_dialog.dart';
+import '../../../widgets/group_dropdown.dart';
 
 class ManageStudentsView extends ConsumerStatefulWidget {
   const ManageStudentsView({super.key});
@@ -22,6 +23,7 @@ class ManageStudentsView extends ConsumerStatefulWidget {
 class _ManageStudentsViewState extends ConsumerState<ManageStudentsView> {
   final TextEditingController _searchController = TextEditingController();
   String _query = '';
+  String? _selectedGroup;
 
   @override
   void dispose() {
@@ -54,6 +56,28 @@ class _ManageStudentsViewState extends ConsumerState<ManageStudentsView> {
                 onChanged: (value) {
                   setState(() {
                     _query = value.trim();
+                  });
+                },
+              ),
+              12.verticalSpace,
+              Align(
+                alignment: Alignment.centerLeft,
+                child: Text(
+                  'Filter by group',
+                  style: TextStyle(
+                    color: colors(context).secondaryText,
+                    fontSize: 11.sp,
+                    fontWeight: FontWeight.w500,
+                  ),
+                ),
+              ),
+              6.verticalSpace,
+              GroupDropdown(
+                selectedGroup: _selectedGroup,
+                showAllOption: true,
+                onChanged: (value) {
+                  setState(() {
+                    _selectedGroup = value;
                   });
                 },
               ),
@@ -105,11 +129,25 @@ class _ManageStudentsViewState extends ConsumerState<ManageStudentsView> {
                             (data['joined_date'] ?? '').toString(),
                       );
                     }).where((item) {
-                      if (_query.isEmpty) return true;
-                      final q = _query.toLowerCase();
-                      return item.fullName.toLowerCase().contains(q) ||
-                          item.indexNo.toLowerCase().contains(q) ||
-                          item.group.toLowerCase().contains(q);
+                      final matchesQuery = () {
+                        if (_query.isEmpty) return true;
+                        final q = _query.toLowerCase();
+                        return item.fullName
+                                .toLowerCase()
+                                .contains(q) ||
+                            item.indexNo
+                                .toLowerCase()
+                                .contains(q) ||
+                            item.group
+                                .toLowerCase()
+                                .contains(q);
+                      }();
+
+                      final matchesGroupFilter =
+                          _selectedGroup == null ||
+                              item.group == _selectedGroup;
+
+                      return matchesQuery && matchesGroupFilter;
                     }).toList();
 
                     if (items.isEmpty) {

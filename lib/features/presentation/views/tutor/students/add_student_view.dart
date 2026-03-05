@@ -7,11 +7,11 @@ import 'package:flutter_screenutil/flutter_screenutil.dart';
 import '../../../../../core/theme/theme_data.dart';
 import '../../../../../utils/enums.dart';
 import '../../../../../utils/navigation_routes.dart';
-import '../../../../tutor/state/tutor_state.dart';
 import '../../../widgets/common_app_bar.dart';
 import '../../../widgets/common_button.dart';
 import '../../../widgets/common_text_field.dart';
 import '../../../widgets/app_dialog.dart';
+import '../../../widgets/group_dropdown.dart';
 
 class AddStudentView extends ConsumerStatefulWidget {
   const AddStudentView({super.key});
@@ -31,7 +31,7 @@ class _AddStudentViewState extends ConsumerState<AddStudentView> {
 
   String? _username;
   String? _password;
-  String? _selectedClassGroupId;
+  String? _selectedGroupName;
   bool _isSubmitting = false;
 
   @override
@@ -46,8 +46,6 @@ class _AddStudentViewState extends ConsumerState<AddStudentView> {
 
   @override
   Widget build(BuildContext context) {
-    final store = ref.watch(tutorStoreProvider);
-
     return Scaffold(
       backgroundColor: colors(context).surface,
       appBar: const CommonAppBar(title: 'Add Students'),
@@ -109,38 +107,13 @@ class _AddStudentViewState extends ConsumerState<AddStudentView> {
                     ),
                   ),
                   10.verticalSpace,
-                  Container(
-                    padding:
-                        EdgeInsets.symmetric(horizontal: 12.w, vertical: 10.h),
-                    decoration: BoxDecoration(
-                      color: colors(context).secondarySurface,
-                      borderRadius: BorderRadius.circular(10.r),
-                      border: Border.all(
-                        color: colors(context).secondarySurfaceBorder,
-                      ),
-                    ),
-                    child: DropdownButtonHideUnderline(
-                      child: DropdownButton<String>(
-                        value: store.classGroups.isEmpty
-                            ? null
-                            : _selectedClassGroupId ??
-                                store.classGroups.first.id,
-                        items: store.classGroups
-                            .map(
-                              (g) => DropdownMenuItem<String>(
-                                value: g.id,
-                                child: Text(g.name),
-                              ),
-                            )
-                            .toList(),
-                        onChanged: (value) {
-                          setState(() {
-                            _selectedClassGroupId = value;
-                          });
-                        },
-                        isExpanded: true,
-                      ),
-                    ),
+                  GroupDropdown(
+                    selectedGroup: _selectedGroupName,
+                    onChanged: (value) {
+                      setState(() {
+                        _selectedGroupName = value;
+                      });
+                    },
                   ),
                   24.verticalSpace,
                   CommonButton(
@@ -301,19 +274,7 @@ class _AddStudentViewState extends ConsumerState<AddStudentView> {
     final phone = _phoneController.text.trim();
     final email = _emailController.text.trim();
     final registrationId = _username!.trim();
-
-    final store = ref.read(tutorStoreProvider);
-    String groupName = '';
-    if (store.classGroups.isNotEmpty) {
-      final selectedId =
-          _selectedClassGroupId ?? store.classGroups.first.id;
-      groupName = store.classGroups
-          .firstWhere(
-            (g) => g.id == selectedId,
-            orElse: () => store.classGroups.first,
-          )
-          .name;
-    }
+    final groupName = _selectedGroupName ?? '';
 
     try {
       final auth = FirebaseAuth.instance;
