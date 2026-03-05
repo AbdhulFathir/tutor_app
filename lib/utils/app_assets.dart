@@ -55,5 +55,18 @@ class AppAssets {
   static String get iconBellWhite => '${kPNGImagePath}ic_bell_white$kPngType';
   static String get iconNotificationBell => '${kPNGImagePath}ic_notification_bell$kPngType';
   static String get iconScanWhite => '${kPNGImagePath}ic_scan_white$kPngType';
+  static String get iconBell => '${kPNGImagePath}ic_bell$kPngType';
+  static String get iconSetting => '${kPNGImagePath}ic_setting$kPngType';
+  static String get iconUser => '${kPNGImagePath}ic_user$kPngType';
+  static String get iconResult => '${kPNGImagePath}ic_result$kPngType';
+  static String get iconPoll => '${kPNGImagePath}ic_poll$kPngType';
+  static String get iconAnnouncement => '${kPNGImagePath}ic_announcement$kPngType';
+  static String get iconScan => '${kPNGImagePath}ic_scan$kPngType';
+  static String get iconTest => '${kPNGImagePath}ic_test$kPngType';
+  static String get iconUsers => '${kPNGImagePath}ic_users$kPngType';
+  static String get iconUploads => '${kPNGImagePath}ic_uploads$kPngType';
+
+
+
 
 }

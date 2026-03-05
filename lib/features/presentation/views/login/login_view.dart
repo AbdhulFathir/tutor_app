@@ -130,7 +130,7 @@ class _LoginViewState extends State<LoginView> {
                           ),
                           SizedBox(height: 12.h),
                           CommonButton(text: 'Login', onPressed: () {
-                            Navigator.pushNamed(context, Routes.kScanView);
+                            Navigator.pushNamed(context, Routes.kTutorHomeView);
                           }),
                           SizedBox(height: 113.h),
                           RichText(

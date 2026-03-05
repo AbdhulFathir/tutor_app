@@ -3,6 +3,20 @@ import '../features/presentation/views/modules/widgets/test.dart';
 import '../features/presentation/views/scan/qr_scan_view.dart';
 import '../features/presentation/views/splash/splash_view.dart';
 import '../features/presentation/views/home/home_view.dart';
+import '../features/presentation/views/tutor/placeholder/simple_placeholder_view.dart';
+import '../features/presentation/views/tutor/tutor_home_view.dart';
+import '../features/presentation/views/tutor/students/add_student_view.dart';
+import '../features/presentation/views/tutor/students/manage_students_view.dart';
+import '../features/presentation/views/tutor/class_groups/manage_class_groups_view.dart';
+import '../features/presentation/views/tutor/tests/manage_tests_view.dart';
+import '../features/presentation/views/tutor/qr/qr_generate_view.dart';
+import '../features/presentation/views/tutor/qr/qr_home_view.dart';
+import '../features/presentation/views/tutor/qr/qr_view_only.dart';
+import '../features/presentation/views/tutor/materials/upload_materials_view.dart';
+import '../features/presentation/views/tutor/announcements/announcements_view.dart';
+import '../features/presentation/views/tutor/polls/polls_view.dart';
+import '../features/presentation/views/tutor/admins/manage_admins_view.dart';
+import '../features/presentation/views/tutor/notifications/notifications_view.dart';
 import '../features/presentation/views/login/login_view.dart';
 import '../features/presentation/views/scan/scan_preview_view.dart';
 import '../features/presentation/views/forgot_password/phone_view.dart';
@@ -44,6 +58,22 @@ class Routes {
   static const String kFinalTestStoryView = "kFinalTestStoryView";
   static const String kFinalTestUploadView = "kFinalTestUploadView";
   static const String kQRScanView = "kQRScanView";
+
+  // Tutor / Admin
+  static const String kTutorHomeView = "kTutorHomeView";
+  static const String kTutorUploadMaterialsView = "kTutorUploadMaterialsView";
+  static const String kTutorManageStudentsView = "kTutorManageStudentsView";
+  static const String kTutorAddStudentView = "kTutorAddStudentView";
+  static const String kTutorManageClassGroupsView = "kTutorManageClassGroupsView";
+  static const String kTutorUploadTestsView = "kTutorUploadTestsView";
+  static const String kTutorQrHomeView = "kTutorQrHomeView";
+  static const String kTutorQrGenerateView = "kTutorQrGenerateView";
+  static const String kTutorQrViewOnly = "kTutorQrViewOnly";
+  static const String kTutorAnnouncementsView = "kTutorAnnouncementsView";
+  static const String kTutorPollsView = "kTutorPollsView";
+  static const String kTutorResultsView = "kTutorResultsView";
+  static const String kTutorManageAdminsView = "kTutorManageAdminsView";
+  static const String kTutorNotificationsView = "kTutorNotificationsView";
 
   static Route<dynamic> generateRoute(RouteSettings settings) {
     switch (settings.name) {
@@ -89,8 +119,81 @@ class Routes {
         );
       case Routes.kHomeView:
         return MaterialPageRoute(
-          builder: (_) => const HomeView(),
+          builder: (_) => const TutorHomeView(),
           settings: const RouteSettings(name: Routes.kHomeView),
+        );
+      case Routes.kTutorHomeView:
+        return MaterialPageRoute(
+          builder: (_) => const TutorHomeView(),
+          settings: const RouteSettings(name: Routes.kTutorHomeView),
+        );
+      case Routes.kTutorUploadMaterialsView:
+        return MaterialPageRoute(
+          builder: (_) => const UploadMaterialsView(),
+          settings: const RouteSettings(name: Routes.kTutorUploadMaterialsView),
+        );
+      case Routes.kTutorManageStudentsView:
+        return MaterialPageRoute(
+          builder: (_) => const ManageStudentsView(),
+          settings: const RouteSettings(name: Routes.kTutorManageStudentsView),
+        );
+      case Routes.kTutorAddStudentView:
+        return MaterialPageRoute(
+          builder: (_) => const AddStudentView(),
+          settings: const RouteSettings(name: Routes.kTutorAddStudentView),
+        );
+      case Routes.kTutorManageClassGroupsView:
+        return MaterialPageRoute(
+          builder: (_) => const ManageClassGroupsView(),
+          settings: const RouteSettings(name: Routes.kTutorManageClassGroupsView),
+        );
+      case Routes.kTutorUploadTestsView:
+        return MaterialPageRoute(
+          builder: (_) => const ManageTestsView(),
+          settings: const RouteSettings(name: Routes.kTutorUploadTestsView),
+        );
+      case Routes.kTutorQrHomeView:
+        return MaterialPageRoute(
+          builder: (_) => const TutorQrHomeView(),
+          settings: const RouteSettings(name: Routes.kTutorQrHomeView),
+        );
+      case Routes.kTutorQrGenerateView:
+        return MaterialPageRoute(
+          builder: (_) => const TutorQrGenerateView(),
+          settings: const RouteSettings(name: Routes.kTutorQrGenerateView),
+        );
+      case Routes.kTutorQrViewOnly:
+        return MaterialPageRoute(
+          builder: (_) => const TutorQrViewOnly(),
+          settings: const RouteSettings(name: Routes.kTutorQrViewOnly),
+        );
+      case Routes.kTutorAnnouncementsView:
+        return MaterialPageRoute(
+          builder: (_) => const AnnouncementsView(),
+          settings: const RouteSettings(name: Routes.kTutorAnnouncementsView),
+        );
+      case Routes.kTutorPollsView:
+        return MaterialPageRoute(
+          builder: (_) => const PollsView(),
+          settings: const RouteSettings(name: Routes.kTutorPollsView),
+        );
+      case Routes.kTutorResultsView:
+        return MaterialPageRoute(
+          builder: (_) => const SimplePlaceholderView(
+            title: 'Results',
+            message: 'Results screens will be implemented next.',
+          ),
+          settings: const RouteSettings(name: Routes.kTutorResultsView),
+        );
+      case Routes.kTutorManageAdminsView:
+        return MaterialPageRoute(
+          builder: (_) => const ManageAdminsView(),
+          settings: const RouteSettings(name: Routes.kTutorManageAdminsView),
+        );
+      case Routes.kTutorNotificationsView:
+        return MaterialPageRoute(
+          builder: (_) => const TutorNotificationsView(),
+          settings: const RouteSettings(name: Routes.kTutorNotificationsView),
         );
       case Routes.kProfileView:
         return MaterialPageRoute(
