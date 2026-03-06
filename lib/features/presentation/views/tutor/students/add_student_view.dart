@@ -28,6 +28,7 @@ class _AddStudentViewState extends ConsumerState<AddStudentView> {
   final _phoneController = TextEditingController();
   final _emailController = TextEditingController();
   final _gradeController = TextEditingController();
+  final _idController = TextEditingController();
 
   String? _username;
   String? _password;
@@ -41,6 +42,7 @@ class _AddStudentViewState extends ConsumerState<AddStudentView> {
     _phoneController.dispose();
     _emailController.dispose();
     _gradeController.dispose();
+    _idController.dispose();
     super.dispose();
   }
 
@@ -79,6 +81,7 @@ class _AddStudentViewState extends ConsumerState<AddStudentView> {
                     labelText: 'Phone number',
                     hintText: 'Enter phone number',
                     keyboardType: TextInputType.phone,
+                    maxLength: 10,
                     validator: (v) =>
                         v == null || v.trim().isEmpty ? 'Phone number required' : null,
                   ),
@@ -90,12 +93,20 @@ class _AddStudentViewState extends ConsumerState<AddStudentView> {
                     keyboardType: TextInputType.emailAddress,
                   ),
                   18.verticalSpace,
+                  // CommonTextField(
+                  //   controller: _gradeController,
+                  //   labelText: 'Grade',
+                  //   hintText: 'Enter grade or class',
+                  //   validator: (v) =>
+                  //       v == null || v.trim().isEmpty ? 'Grade required' : null,
+                  // ),
+                  18.verticalSpace,
                   CommonTextField(
-                    controller: _gradeController,
-                    labelText: 'Grade',
-                    hintText: 'Enter grade or class',
+                    controller: _idController,
+                    labelText: 'Student ID',
+                    hintText: 'Enter Student ID',
                     validator: (v) =>
-                        v == null || v.trim().isEmpty ? 'Grade required' : null,
+                        v == null || v.trim().isEmpty ? 'Student ID required' : null,
                   ),
                   24.verticalSpace,
                   Text(
@@ -180,7 +191,7 @@ class _AddStudentViewState extends ConsumerState<AddStudentView> {
 
   void _showLoginDialog() {
     final usernameController =
-        TextEditingController(text: _username ?? _firstNameController.text);
+        TextEditingController(text: _username ?? _emailController.text);
     final passwordController =
         TextEditingController(text: _password ?? 'Password@123');
 
@@ -273,7 +284,7 @@ class _AddStudentViewState extends ConsumerState<AddStudentView> {
     final lastName = _lastNameController.text.trim();
     final phone = _phoneController.text.trim();
     final email = _emailController.text.trim();
-    final registrationId = _username!.trim();
+    final registrationId =_idController.text.trim();
     final groupName = _selectedGroupName ?? '';
 
     try {
