@@ -6,7 +6,9 @@ import '../features/presentation/views/home/home_view.dart';
 import '../features/presentation/views/tutor/placeholder/simple_placeholder_view.dart';
 import '../features/presentation/views/tutor/tutor_home_view.dart';
 import '../features/presentation/views/tutor/students/add_student_view.dart';
+import '../features/presentation/views/tutor/students/edit_student_view.dart';
 import '../features/presentation/views/tutor/students/manage_students_view.dart';
+import '../features/presentation/views/tutor/class_groups/edit_group_view.dart';
 import '../features/presentation/views/tutor/class_groups/manage_class_groups_view.dart';
 import '../features/presentation/views/tutor/tests/manage_tests_view.dart';
 import '../features/presentation/views/tutor/qr/qr_generate_view.dart';
@@ -64,7 +66,9 @@ class Routes {
   static const String kTutorUploadMaterialsView = "kTutorUploadMaterialsView";
   static const String kTutorManageStudentsView = "kTutorManageStudentsView";
   static const String kTutorAddStudentView = "kTutorAddStudentView";
+  static const String kTutorEditStudentView = "kTutorEditStudentView";
   static const String kTutorManageClassGroupsView = "kTutorManageClassGroupsView";
+  static const String kTutorEditGroupView = "kTutorEditGroupView";
   static const String kTutorUploadTestsView = "kTutorUploadTestsView";
   static const String kTutorQrHomeView = "kTutorQrHomeView";
   static const String kTutorQrGenerateView = "kTutorQrGenerateView";
@@ -142,10 +146,26 @@ class Routes {
           builder: (_) => const AddStudentView(),
           settings: const RouteSettings(name: Routes.kTutorAddStudentView),
         );
+      case Routes.kTutorEditStudentView:
+        return MaterialPageRoute(
+          builder: (_) => const EditStudentView(),
+          settings: RouteSettings(
+            name: Routes.kTutorEditStudentView,
+            arguments: settings.arguments,
+          ),
+        );
       case Routes.kTutorManageClassGroupsView:
         return MaterialPageRoute(
           builder: (_) => const ManageClassGroupsView(),
           settings: const RouteSettings(name: Routes.kTutorManageClassGroupsView),
+        );
+      case Routes.kTutorEditGroupView:
+        return MaterialPageRoute(
+          builder: (_) => const EditGroupView(),
+          settings: RouteSettings(
+            name: Routes.kTutorEditGroupView,
+            arguments: settings.arguments,
+          ),
         );
       case Routes.kTutorUploadTestsView:
         return MaterialPageRoute(

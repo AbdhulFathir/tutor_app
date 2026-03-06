@@ -321,23 +321,28 @@ class _ManageStudentsViewState extends ConsumerState<ManageStudentsView> {
               Row(
                 children: [
                   Expanded(
-                    child: OutlinedButton(
+                    child: CommonButton(
+                      text: 'Edit',
                       onPressed: () {
                         Navigator.pop(context);
-                        _confirmDelete(student);
+                        Navigator.pushNamed(
+                          context,
+                          Routes.kTutorEditStudentView,
+                          arguments: student.docId,
+                        );
                       },
-                      style: OutlinedButton.styleFrom(
-                        foregroundColor: Colors.red,
-                        side: const BorderSide(color: Colors.red),
-                      ),
-                      child: const Text('Delete'),
                     ),
                   ),
                   12.horizontalSpace,
                   Expanded(
-                    child: CommonButton(
-                      text: 'Done',
+                    child: OutlinedButton(
                       onPressed: () => Navigator.pop(context),
+                      style: OutlinedButton.styleFrom(
+                        side: BorderSide(
+                          color: colors(context).secondarySurfaceBorder,
+                        ),
+                      ),
+                      child: const Text('Done'),
                     ),
                   ),
                 ],
@@ -380,49 +385,6 @@ class _ManageStudentsViewState extends ConsumerState<ManageStudentsView> {
     );
   }
 
-  void _confirmDelete(_StudentListItem student) {
-    showDialog(
-      context: context,
-      barrierDismissible: false,
-      builder: (_) => AppDialog(
-        title: 'Delete',
-        description:
-            'Are you sure you want to delete ${student.fullName}?',
-        alertType: AlertType.FAIL,
-        positiveButtonText: 'Delete',
-        negativeButtonText: 'Cancel',
-        onPositiveCallback: () async {
-          try {
-            await FirebaseFirestore.instance
-                .collection('users')
-                .doc(student.docId)
-                .delete();
-            Navigator.pop(context);
-            showDialog(
-              context: context,
-              barrierDismissible: false,
-              builder: (_) => const AppDialog(
-                title: 'Success',
-                description: 'Student deleted successfully.',
-                alertType: AlertType.SUCCESS,
-              ),
-            );
-          } catch (_) {
-            Navigator.pop(context);
-            showDialog(
-              context: context,
-              builder: (_) => const AppDialog(
-                title: 'Failed',
-                description:
-                    'Unable to delete the student. Please try again.',
-                alertType: AlertType.FAIL,
-              ),
-            );
-          }
-        },
-      ),
-    );
-  }
 }
 
 class _StudentListItem {

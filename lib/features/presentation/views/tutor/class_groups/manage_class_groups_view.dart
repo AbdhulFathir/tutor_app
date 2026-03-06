@@ -5,6 +5,7 @@ import 'package:flutter_screenutil/flutter_screenutil.dart';
 
 import '../../../../../core/theme/theme_data.dart';
 import '../../../../../utils/enums.dart';
+import '../../../../../utils/navigation_routes.dart';
 import '../../../widgets/common_app_bar.dart';
 import '../../../widgets/common_button.dart';
 import '../../../widgets/common_text_field.dart';
@@ -302,18 +303,6 @@ class _GroupCard extends StatelessWidget {
                               fontSize: 11.sp,
                             ),
                           ),
-                          trailing: IconButton(
-                            icon: const Icon(
-                              Icons.delete_forever,
-                              color: Colors.red,
-                            ),
-                            onPressed: () =>
-                                _confirmRemoveStudentFromGroup(
-                              context,
-                              doc.id,
-                              name,
-                            ),
-                          ),
                         );
                       },
                     );
@@ -321,13 +310,34 @@ class _GroupCard extends StatelessWidget {
                 ),
               ),
               16.verticalSpace,
-              CommonButton(
-                text: 'Delete Group',
-                backgroundColor: Colors.red,
-                onPressed: () {
-                  Navigator.pop(context);
-                  _confirmDeleteGroup(context);
-                },
+              Row(
+                children: [
+                  Expanded(
+                    child: CommonButton(
+                      text: 'Edit',
+                      onPressed: () {
+                        Navigator.pop(context);
+                        Navigator.pushNamed(
+                          context,
+                          Routes.kTutorEditGroupView,
+                          arguments: {'id': group.id, 'name': group.name},
+                        );
+                      },
+                    ),
+                  ),
+                  12.horizontalSpace,
+                  Expanded(
+                    child: OutlinedButton(
+                      onPressed: () => Navigator.pop(context),
+                      style: OutlinedButton.styleFrom(
+                        side: BorderSide(
+                          color: colors(context).secondarySurfaceBorder,
+                        ),
+                      ),
+                      child: const Text('Done'),
+                    ),
+                  ),
+                ],
               ),
             ],
           ),
@@ -336,64 +346,6 @@ class _GroupCard extends StatelessWidget {
     );
   }
 
-  void _confirmDeleteGroup(BuildContext context) {
-    showDialog(
-      context: context,
-      barrierDismissible: false,
-      builder: (_) => AppDialog(
-        title: 'Delete Group',
-        description:
-            'Are you sure you want to delete "${group.name}"? Students will be unassigned from this group.',
-        alertType: AlertType.FAIL,
-        positiveButtonText: 'Delete',
-        negativeButtonText: 'Cancel',
-        onPositiveCallback: () async {
-          final firestore = FirebaseFirestore.instance;
-          final batch = firestore.batch();
-
-          final usersQuery = await firestore
-              .collection('users')
-              .where('group', isEqualTo: group.name)
-              .get();
-
-          for (final doc in usersQuery.docs) {
-            batch.update(doc.reference, {'group': ''});
-          }
-
-          batch.delete(
-            firestore.collection('groups').doc(group.id),
-          );
-
-          await batch.commit();
-        },
-      ),
-    );
-  }
-
-  void _confirmRemoveStudentFromGroup(
-    BuildContext context,
-    String userDocId,
-    String studentName,
-  ) {
-    showDialog(
-      context: context,
-      barrierDismissible: false,
-      builder: (_) => AppDialog(
-        title: 'Remove from Group',
-        description:
-            'Remove $studentName from "${group.name}"?',
-        alertType: AlertType.FAIL,
-        positiveButtonText: 'Remove',
-        negativeButtonText: 'Cancel',
-        onPositiveCallback: () async {
-          await FirebaseFirestore.instance
-              .collection('users')
-              .doc(userDocId)
-              .update({'group': ''});
-        },
-      ),
-    );
-  }
 }
 
 class _GroupItem {
