@@ -2,8 +2,8 @@ import 'package:flutter/material.dart';
 import '../features/presentation/views/modules/widgets/test.dart';
 import '../features/presentation/views/scan/qr_scan_view.dart';
 import '../features/presentation/views/splash/splash_view.dart';
-import '../features/presentation/views/home/home_view.dart';
 import '../features/presentation/views/tutor/placeholder/simple_placeholder_view.dart';
+import '../features/presentation/views/tutor/qr/qr_view_only.dart';
 import '../features/presentation/views/tutor/tutor_home_view.dart';
 import '../features/presentation/views/tutor/students/add_student_view.dart';
 import '../features/presentation/views/tutor/students/edit_student_view.dart';
@@ -11,9 +11,10 @@ import '../features/presentation/views/tutor/students/manage_students_view.dart'
 import '../features/presentation/views/tutor/class_groups/edit_group_view.dart';
 import '../features/presentation/views/tutor/class_groups/manage_class_groups_view.dart';
 import '../features/presentation/views/tutor/tests/manage_tests_view.dart';
+import '../features/presentation/views/tutor/tests/add_test_view.dart';
+import '../features/presentation/views/tutor/tests/edit_test_view.dart';
 import '../features/presentation/views/tutor/qr/qr_generate_view.dart';
 import '../features/presentation/views/tutor/qr/qr_home_view.dart';
-import '../features/presentation/views/tutor/qr/qr_view_only.dart';
 import '../features/presentation/views/tutor/materials/upload_materials_view.dart';
 import '../features/presentation/views/tutor/announcements/announcements_view.dart';
 import '../features/presentation/views/tutor/polls/polls_view.dart';
@@ -70,6 +71,8 @@ class Routes {
   static const String kTutorManageClassGroupsView = "kTutorManageClassGroupsView";
   static const String kTutorEditGroupView = "kTutorEditGroupView";
   static const String kTutorUploadTestsView = "kTutorUploadTestsView";
+  static const String kTutorAddTestView = "kTutorAddTestView";
+  static const String kTutorEditTestView = "kTutorEditTestView";
   static const String kTutorQrHomeView = "kTutorQrHomeView";
   static const String kTutorQrGenerateView = "kTutorQrGenerateView";
   static const String kTutorQrViewOnly = "kTutorQrViewOnly";
@@ -171,6 +174,19 @@ class Routes {
         return MaterialPageRoute(
           builder: (_) => const ManageTestsView(),
           settings: const RouteSettings(name: Routes.kTutorUploadTestsView),
+        );
+      case Routes.kTutorAddTestView:
+        return MaterialPageRoute(
+          builder: (_) => const AddTestView(),
+          settings: const RouteSettings(name: Routes.kTutorAddTestView),
+        );
+      case Routes.kTutorEditTestView:
+        return MaterialPageRoute(
+          builder: (_) => const EditTestView(),
+          settings: RouteSettings(
+            name: Routes.kTutorEditTestView,
+            arguments: settings.arguments,
+          ),
         );
       case Routes.kTutorQrHomeView:
         return MaterialPageRoute(
