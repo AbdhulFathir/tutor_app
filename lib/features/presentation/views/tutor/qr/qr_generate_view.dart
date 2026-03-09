@@ -1,5 +1,11 @@
+import 'dart:io';
+import 'dart:typed_data';
+import 'dart:ui' as ui;
+
 import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
+import 'package:path_provider/path_provider.dart';
+import 'package:permission_handler/permission_handler.dart';
 import 'package:qr_flutter/qr_flutter.dart';
 
 import '../../../../../core/theme/theme_data.dart';
@@ -37,10 +43,57 @@ class _TutorQrGenerateViewState extends State<TutorQrGenerateView> {
   ];
 
   String _buildQrPayload() {
-    final now = DateTime.now().toIso8601String();
     final group = _selectedGroup ?? 'all';
     final month = _selectedMonth;
-    return 'wavelearn-monthly-qr|group=$group|month=$month|ts=$now';
+    return 'wavelearn-monthly-qr|group=$group|month=$month';
+  }
+
+  Future<Directory> _resolveDownloadsDirectory() async {
+    if (Platform.isAndroid) {
+      final defaultDir = Directory('/storage/emulated/0/Download');
+      if (await defaultDir.exists()) {
+        return defaultDir;
+      }
+      final extDir = await getExternalStorageDirectory();
+      if (extDir != null) {
+        return extDir;
+      }
+    }
+    return await getApplicationDocumentsDirectory();
+  }
+
+  Future<bool> _saveQrToDownloads(String data) async {
+    try {
+      if (Platform.isAndroid) {
+        final status = await Permission.storage.request();
+        if (!status.isGranted) {
+          return false;
+        }
+      }
+
+      final qrPainter = QrPainter(
+        data: data,
+        version: QrVersions.auto,
+        gapless: true,
+        color: Colors.black,
+        emptyColor: Colors.white,
+      );
+
+      final ui.ImageByteFormat format = ui.ImageByteFormat.png;
+      final ByteData? imageData =
+          await qrPainter.toImageData(1024, format: format);
+      if (imageData == null) return false;
+
+      final bytes = imageData.buffer.asUint8List();
+      final dir = await _resolveDownloadsDirectory();
+      final fileName =
+          'monthly_qr_${DateTime.now().millisecondsSinceEpoch}.png';
+      final file = File('${dir.path}/$fileName');
+      await file.writeAsBytes(bytes, flush: true);
+      return true;
+    } catch (_) {
+      return false;
+    }
   }
 
   Future<void> _showGeneratedDialog(BuildContext context, String data) async {
@@ -87,16 +140,23 @@ class _TutorQrGenerateViewState extends State<TutorQrGenerateView> {
               24.verticalSpace,
               CommonButton(
                 text: 'Download QR',
-                onPressed: () {
-                  Navigator.of(context).pop();
-                  showDialog(
-                    context: context,
-                    builder: (_) => const AppDialog(
-                      title: 'Success',
-                      description: 'QR generated successfully.',
-                      alertType: AlertType.SUCCESS,
-                    ),
-                  );
+                onPressed: () async {
+                  final success = await _saveQrToDownloads(data);
+                  if (context.mounted) {
+                    Navigator.of(context).pop();
+                    showDialog(
+                      context: context,
+                      builder: (_) => AppDialog(
+                        title: success ? 'Saved' : 'Failed',
+                        description: success
+                            ? 'QR saved to Downloads folder.'
+                            : 'Unable to save QR. Please check permissions and try again.',
+                        alertType: success
+                            ? AlertType.SUCCESS
+                            : AlertType.FAIL,
+                      ),
+                    );
+                  }
                 },
               ),
             ],

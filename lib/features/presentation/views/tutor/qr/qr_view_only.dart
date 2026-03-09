@@ -1,8 +1,11 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
+import 'package:qr_flutter/qr_flutter.dart';
+
 import '../../../../../core/theme/theme_data.dart';
 import '../../../widgets/common_app_bar.dart';
 import '../../../widgets/common_button.dart';
+import '../../../widgets/group_dropdown.dart';
 
 class TutorQrViewOnly extends StatefulWidget {
   const TutorQrViewOnly({super.key});
@@ -12,6 +15,7 @@ class TutorQrViewOnly extends StatefulWidget {
 }
 
 class _TutorQrViewOnlyState extends State<TutorQrViewOnly> {
+  String? _selectedGroup;
   String _selectedMonth = _monthNames[DateTime.now().month - 1];
 
   static const List<String> _monthNames = <String>[
@@ -29,7 +33,13 @@ class _TutorQrViewOnlyState extends State<TutorQrViewOnly> {
     'December',
   ];
 
-  Future<void> _showQrDialog(BuildContext context) async {
+  String _buildQrPayload() {
+    final group = _selectedGroup ?? 'all';
+    final month = _selectedMonth;
+    return 'wavelearn-monthly-qr|group=$group|month=$month';
+  }
+
+  Future<void> _showQrDialog(BuildContext context, String data) async {
     await showDialog(
       context: context,
       barrierDismissible: true,
@@ -58,10 +68,11 @@ class _TutorQrViewOnlyState extends State<TutorQrViewOnly> {
                   color: colors(context).secondarySurface,
                   borderRadius: BorderRadius.circular(24.r),
                 ),
-                child: const Center(
-                  child: Icon(
-                    Icons.qr_code_2_rounded,
-                    size: 120,
+                child: Center(
+                  child: QrImageView(
+                    data: data,
+                    version: QrVersions.auto,
+                    size: 180.w,
                   ),
                 ),
               ),
@@ -109,6 +120,16 @@ class _TutorQrViewOnlyState extends State<TutorQrViewOnly> {
                 ),
               ),
               32.verticalSpace,
+              GroupDropdown(
+                selectedGroup: _selectedGroup,
+                onChanged: (value) {
+                  setState(() {
+                    _selectedGroup = value;
+                  });
+                },
+                showAllOption: true,
+              ),
+              16.verticalSpace,
               Container(
                 padding:
                     EdgeInsets.symmetric(horizontal: 12.w, vertical: 10.h),
@@ -144,7 +165,8 @@ class _TutorQrViewOnlyState extends State<TutorQrViewOnly> {
               CommonButton(
                 text: 'View',
                 onPressed: () {
-                  _showQrDialog(context);
+                  final data = _buildQrPayload();
+                  _showQrDialog(context, data);
                 },
               ),
               24.verticalSpace,
