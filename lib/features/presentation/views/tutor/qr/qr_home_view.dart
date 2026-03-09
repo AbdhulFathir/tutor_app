@@ -1,6 +1,5 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
-import 'package:qr_flutter/qr_flutter.dart';
 
 import '../../../../../core/theme/theme_data.dart';
 import '../../../../../utils/navigation_routes.dart';
@@ -14,32 +13,76 @@ class TutorQrHomeView extends StatelessWidget {
   Widget build(BuildContext context) {
     return Scaffold(
       backgroundColor: colors(context).surface,
-      appBar: const CommonAppBar(title: 'QR'),
+      appBar: const CommonAppBar(title: 'Monthly QR Generator'),
       body: SafeArea(
         child: Padding(
           padding: EdgeInsets.symmetric(horizontal: 24.w, vertical: 16.h),
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.stretch,
             children: [
-              24.verticalSpace,
-              Center(
-                child: Container(
-                  width: 220.w,
-                  height: 220.w,
-                  decoration: BoxDecoration(
-                    color: colors(context).secondarySurface,
-                    borderRadius: BorderRadius.circular(24.r),
-                  ),
-                  child: Center(
-                    child: QrImageView(
-                      data: 'wavelearn-monthly-qr',
-                      version: QrVersions.auto,
-                      size: 160.w,
+              32.verticalSpace,
+              Text(
+                'Welcome',
+                textAlign: TextAlign.center,
+                style: TextStyle(
+                  fontSize: 24.sp,
+                  fontWeight: FontWeight.w700,
+                  color: colors(context).text,
+                ),
+              ),
+              12.verticalSpace,
+              Text(
+                'You can generate or view Monthly QR Code',
+                textAlign: TextAlign.center,
+                style: TextStyle(
+                  fontSize: 14.sp,
+                  fontWeight: FontWeight.w400,
+                  color: colors(context).secondaryText,
+                ),
+              ),
+              40.verticalSpace,
+              Expanded(
+                child: Center(
+                  child: Container(
+                    width: 260.w,
+                    decoration: BoxDecoration(
+                      color: colors(context).secondarySurface,
+                      borderRadius: BorderRadius.circular(32.r),
+                    ),
+                    padding:
+                        EdgeInsets.symmetric(horizontal: 24.w, vertical: 32.h),
+                    child: Column(
+                      mainAxisSize: MainAxisSize.min,
+                      children: [
+                        Icon(
+                          Icons.qr_code_2_rounded,
+                          size: 96.w,
+                          color: Colors.blueAccent,
+                        ),
+                        24.verticalSpace,
+                        Text(
+                          'Monthly QR Generator',
+                          textAlign: TextAlign.center,
+                          style: TextStyle(
+                            fontSize: 16.sp,
+                            fontWeight: FontWeight.w600,
+                            color: colors(context).text,
+                          ),
+                        ),
+                        8.verticalSpace,
+                        Text(
+                          'Generate a new QR or view existing one for attendance.',
+                          textAlign: TextAlign.center,
+                          style: TextStyle(
+                            fontSize: 12.sp,
+                            color: colors(context).secondaryText,
+                          ),
+                        ),
+                      ],
                     ),
                   ),
                 ),
               ),
-              32.verticalSpace,
               CommonButton(
                 text: 'Generate New QR',
                 onPressed: () {
