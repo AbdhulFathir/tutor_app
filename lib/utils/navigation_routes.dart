@@ -16,6 +16,8 @@ import '../features/presentation/views/tutor/tests/edit_test_view.dart';
 import '../features/presentation/views/tutor/qr/qr_generate_view.dart';
 import '../features/presentation/views/tutor/qr/qr_home_view.dart';
 import '../features/presentation/views/tutor/materials/upload_materials_view.dart';
+import '../features/presentation/views/tutor/lessons/manage_lessons_view.dart';
+import '../features/presentation/views/tutor/lessons/manage_lesson_detail_view.dart';
 import '../features/presentation/views/tutor/announcements/announcements_view.dart';
 import '../features/presentation/views/tutor/polls/polls_view.dart';
 import '../features/presentation/views/tutor/admins/manage_admins_view.dart';
@@ -65,6 +67,8 @@ class Routes {
   // Tutor / Admin
   static const String kTutorHomeView = "kTutorHomeView";
   static const String kTutorUploadMaterialsView = "kTutorUploadMaterialsView";
+  static const String kTutorManageLessonsView = "kTutorManageLessonsView";
+  static const String kTutorManageLessonDetailView = "kTutorManageLessonDetailView";
   static const String kTutorManageStudentsView = "kTutorManageStudentsView";
   static const String kTutorAddStudentView = "kTutorAddStudentView";
   static const String kTutorEditStudentView = "kTutorEditStudentView";
@@ -138,6 +142,19 @@ class Routes {
         return MaterialPageRoute(
           builder: (_) => const UploadMaterialsView(),
           settings: const RouteSettings(name: Routes.kTutorUploadMaterialsView),
+        );
+      case Routes.kTutorManageLessonsView:
+        return MaterialPageRoute(
+          builder: (_) => const ManageLessonsView(),
+          settings: const RouteSettings(name: Routes.kTutorManageLessonsView),
+        );
+      case Routes.kTutorManageLessonDetailView:
+        return MaterialPageRoute(
+          builder: (_) => const ManageLessonDetailView(),
+          settings: RouteSettings(
+            name: Routes.kTutorManageLessonDetailView,
+            arguments: settings.arguments,
+          ),
         );
       case Routes.kTutorManageStudentsView:
         return MaterialPageRoute(

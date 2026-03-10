@@ -157,6 +157,11 @@ class TutorHomeView extends StatelessWidget {
                           onTap: () => Navigator.pushNamed(context, Routes.kTutorUploadMaterialsView),
                         ),
                         TutorTile(
+                          icon: AppAssets.iconFolderOpenFill,
+                          label: 'Manage Lessons',
+                          onTap: () => Navigator.pushNamed(context, Routes.kTutorManageLessonsView),
+                        ),
+                        TutorTile(
                           icon: AppAssets.iconUser,
                           label: 'Manage Students',
                           onTap: () => Navigator.pushNamed(context, Routes.kTutorManageStudentsView),
