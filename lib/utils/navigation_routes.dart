@@ -18,6 +18,8 @@ import '../features/presentation/views/tutor/qr/qr_home_view.dart';
 import '../features/presentation/views/tutor/materials/upload_materials_view.dart';
 import '../features/presentation/views/tutor/lessons/manage_lessons_view.dart';
 import '../features/presentation/views/tutor/lessons/manage_lesson_detail_view.dart';
+import '../features/presentation/views/tutor/results/tutor_results_view.dart';
+import '../features/presentation/views/tutor/results/test_submissions_view.dart';
 import '../features/presentation/views/tutor/announcements/announcements_view.dart';
 import '../features/presentation/views/tutor/polls/polls_view.dart';
 import '../features/presentation/views/tutor/admins/manage_admins_view.dart';
@@ -83,6 +85,7 @@ class Routes {
   static const String kTutorAnnouncementsView = "kTutorAnnouncementsView";
   static const String kTutorPollsView = "kTutorPollsView";
   static const String kTutorResultsView = "kTutorResultsView";
+  static const String kTutorTestSubmissionsView = "kTutorTestSubmissionsView";
   static const String kTutorManageAdminsView = "kTutorManageAdminsView";
   static const String kTutorNotificationsView = "kTutorNotificationsView";
 
@@ -232,11 +235,16 @@ class Routes {
         );
       case Routes.kTutorResultsView:
         return MaterialPageRoute(
-          builder: (_) => const SimplePlaceholderView(
-            title: 'Results',
-            message: 'Results screens will be implemented next.',
-          ),
+          builder: (_) => const TutorResultsView(),
           settings: const RouteSettings(name: Routes.kTutorResultsView),
+        );
+      case Routes.kTutorTestSubmissionsView:
+        return MaterialPageRoute(
+          builder: (_) => const TestSubmissionsView(),
+          settings: RouteSettings(
+            name: Routes.kTutorTestSubmissionsView,
+            arguments: settings.arguments,
+          ),
         );
       case Routes.kTutorManageAdminsView:
         return MaterialPageRoute(
