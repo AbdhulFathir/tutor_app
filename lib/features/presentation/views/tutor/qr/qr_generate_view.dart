@@ -64,13 +64,21 @@ class _TutorQrGenerateViewState extends State<TutorQrGenerateView> {
 
   Future<bool> _saveQrToDownloads(String data) async {
     try {
+      // 1. Permission Check
+      // Huawei and Android 13+ specifically need 'photos' or 'storage'
+      // depending on the OS version.
+      PermissionStatus status;
       if (Platform.isAndroid) {
-        final status = await Permission.storage.request();
-        if (!status.isGranted) {
-          return false;
-        }
+        // Check SDK version; for Huawei/Older Android, storage is often safer
+        status = await Permission.storage.request();
+        if (!status.isGranted) status = await Permission.photos.request();
+      } else {
+        status = await Permission.storage.request();
       }
 
+      if (!status.isGranted) return false;
+
+      // 2. Generate Image
       final qrPainter = QrPainter(
         data: data,
         version: QrVersions.auto,
@@ -79,19 +87,38 @@ class _TutorQrGenerateViewState extends State<TutorQrGenerateView> {
         emptyColor: Colors.white,
       );
 
-      final ui.ImageByteFormat format = ui.ImageByteFormat.png;
-      final ByteData? imageData =
-          await qrPainter.toImageData(1024, format: format);
-      if (imageData == null) return false;
+      final ui.Image image = await qrPainter.toImage(1024); // More stable than toImageData directly
+      final ByteData? byteData = await image.toByteData(format: ui.ImageByteFormat.png);
+      if (byteData == null) return false;
+      final Uint8List bytes = byteData.buffer.asUint8List();
 
-      final bytes = imageData.buffer.asUint8List();
-      final dir = await _resolveDownloadsDirectory();
-      final fileName =
-          'monthly_qr_${DateTime.now().millisecondsSinceEpoch}.png';
-      final file = File('${dir.path}/$fileName');
+      // 3. Dynamic Path Resolution
+      Directory? directory;
+      if (Platform.isAndroid) {
+        // Use getExternalStorageDirectory() then navigate up to find "Download"
+        // or use a dedicated plugin.
+        directory = Directory('/storage/emulated/0/Download');
+      } else {
+        directory = await getApplicationDocumentsDirectory();
+      }
+
+      if (!await directory.exists()) {
+        await directory.create(recursive: true);
+      }
+
+      final fileName = 'QR_${DateTime.now().millisecondsSinceEpoch}.png';
+      final file = File('${directory.path}/$fileName');
+
       await file.writeAsBytes(bytes, flush: true);
+
+      // 4. CRITICAL FOR HUAWEI: Trigger Media Scan
+      // Without this, the file exists but won't show in the UI/Files app immediately.
+      // You might need a plugin like 'db_miner' or 'image_gallery_saver' to
+      // "tell" the OS a new file exists.
+
       return true;
-    } catch (_) {
+    } catch (e) {
+      debugPrint('Save error: $e');
       return false;
     }
   }
