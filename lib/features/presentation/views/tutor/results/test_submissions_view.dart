@@ -10,7 +10,6 @@ import '../../../../tutor/models/firestore_test.dart';
 import '../../../../tutor/models/test_submission.dart';
 import '../../../widgets/common_app_bar.dart';
 import '../../../widgets/common_button.dart';
-import '../../../widgets/common_outlined_button.dart';
 
 class TestSubmissionsView extends StatelessWidget {
   const TestSubmissionsView({super.key});
@@ -116,7 +115,6 @@ class TestSubmissionsView extends StatelessWidget {
                   stream: FirebaseFirestore.instance
                       .collection('submision')
                       .where('testId', isEqualTo: test.id)
-                      .orderBy('submittedAt', descending: true)
                       .snapshots(),
                   builder: (context, snapshot) {
                     if (snapshot.connectionState == ConnectionState.waiting) {
@@ -125,13 +123,17 @@ class TestSubmissionsView extends StatelessWidget {
                       );
                     }
                     if (snapshot.hasError) {
+                      final errorText = snapshot.error?.toString() ?? '';
                       return Center(
                         child: Text(
-                          'Failed to load submissions.',
+                          errorText.isEmpty
+                              ? 'Failed to load submissions.'
+                              : 'Failed to load submissions.\n$errorText',
                           style: TextStyle(
                             color: colors(context).secondaryText,
                             fontSize: 13.sp,
                           ),
+                          textAlign: TextAlign.center,
                         ),
                       );
                     }
@@ -150,8 +152,16 @@ class TestSubmissionsView extends StatelessWidget {
                       );
                     }
 
-                    final submissions =
-                        docs.map(TestSubmission.fromDoc).toList();
+                    final submissions = docs
+                        .map(TestSubmission.fromDoc)
+                        .toList()
+                      ..sort((a, b) {
+                        final aTime = a.submittedAt ??
+                            DateTime.fromMillisecondsSinceEpoch(0);
+                        final bTime = b.submittedAt ??
+                            DateTime.fromMillisecondsSinceEpoch(0);
+                        return bTime.compareTo(aTime);
+                      });
 
                     return ListView.separated(
                       itemCount: submissions.length,
@@ -261,11 +271,27 @@ class _SubmissionCard extends StatelessWidget {
                 ),
               ),
               8.horizontalSpace,
-              CommonOutlinedButton(
-                text: 'View',
-                onPressed: () {
-                  _openMarkSheet(context, test, submission);
-                },
+              SizedBox(
+                height: 36.h,
+                child: OutlinedButton(
+                  onPressed: () {
+                    _openMarkSheet(context, test, submission);
+                  },
+                  style: OutlinedButton.styleFrom(
+                    side: const BorderSide(color: Color(0xFF0060DB)),
+                    shape: RoundedRectangleBorder(
+                      borderRadius: BorderRadius.circular(8.r),
+                    ),
+                  ),
+                  child: Text(
+                    'View',
+                    style: TextStyle(
+                      color: const Color(0xFF0060DB),
+                      fontSize: 12.sp,
+                      fontWeight: FontWeight.w600,
+                    ),
+                  ),
+                ),
               ),
             ],
           ),
