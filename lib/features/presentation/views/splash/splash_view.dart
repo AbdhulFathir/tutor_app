@@ -32,7 +32,7 @@ class _SplashViewState extends State<SplashView> {
           children: [
             Image.asset(
               AppAssets.appLogo,
-              height: 110.h,
+              height: 91.w,
             ),
             SizedBox(height: 15.h),
             RichText(
@@ -59,7 +59,9 @@ class _SplashViewState extends State<SplashView> {
             SizedBox(height:8.h),
             Text(
               AppString.tagline,
-              style: TextStyle(color: Colors.grey[600]),
+              style: TextStyle(color: Color(0xFF757575),
+                  fontSize: 15.sp,
+                  fontWeight: FontWeight.w500),
             ),
           ],
         ),

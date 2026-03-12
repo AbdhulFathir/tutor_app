@@ -19,7 +19,7 @@ class WelcomeView extends StatelessWidget {
             const Spacer(),
             Image.asset(
               AppAssets.appLogo,
-              height: 110.h,
+              height: 91.h,
             ),
             SizedBox(height: 15.h),
             RichText(
@@ -28,7 +28,6 @@ class WelcomeView extends StatelessWidget {
                 style: TextStyle(
                   color: colors(context).text,
                   fontSize: 24.sp,
-                  // Use a slightly bolder weight for the main title
                   fontWeight: FontWeight.w600,
                 ),
                 children:[
@@ -47,7 +46,9 @@ class WelcomeView extends StatelessWidget {
             SizedBox(height:8.h),
             Text(
               AppString.tagline,
-              style: TextStyle(color: Colors.grey[600]),
+              style: TextStyle(color: Color(0xFF757575),
+                  fontSize: 15.sp,
+                  fontWeight: FontWeight.w500),
             ),
             const Spacer(),
             Padding(
@@ -62,8 +63,8 @@ class WelcomeView extends StatelessWidget {
               textAlign: TextAlign.center,
               text: TextSpan(
                 style: TextStyle(
-                  fontSize: 9.sp,
-                  color: Colors.grey[600],
+                  fontSize: 12.sp,
+                  color:  Color(0xFF757575),
                 ),
                 children: <TextSpan>[
                   TextSpan(text: 'By Sign in you Agree To WaveLearn`s\n'),

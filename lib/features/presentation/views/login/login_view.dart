@@ -123,7 +123,7 @@ class _LoginViewState extends State<LoginView> {
                             alignment: Alignment.centerRight,
                             child: TextButton(
                               onPressed: () {
-                                Navigator.pushNamed(context, Routes.kPhoneView);
+                                // Navigator.pushNamed(context, Routes.kPhoneView);
                               },
                               child: const Text('Forgot password?'),
                             ),
