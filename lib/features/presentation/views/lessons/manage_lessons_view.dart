@@ -526,81 +526,125 @@ class _LessonCard extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return Container(
-      padding: EdgeInsets.symmetric(horizontal: 16.w, vertical: 14.h),
-      decoration: BoxDecoration(
+    return Padding(
+      padding: EdgeInsets.symmetric(vertical: 4.h),
+      child: Material(
         color: colors(context).secondarySurface,
-        borderRadius: BorderRadius.circular(10.r),
-        border: Border.all(color: colors(context).secondarySurfaceBorder),
-      ),
-      child: InkWell(
-        onTap: onTap,
-        borderRadius: BorderRadius.circular(10.r),
-        child: Row(
-          children: [
-            if (lesson.imageUrl.isNotEmpty)
-              ClipRRect(
-                borderRadius: BorderRadius.circular(8.r),
-                child: Image.network(
-                  lesson.imageUrl,
-                  width: 60.w,
-                  height: 60.w,
-                  fit: BoxFit.cover,
-                  errorBuilder: (_, __, ___) => Container(
+        borderRadius: BorderRadius.circular(12.r),
+        child: InkWell(
+          borderRadius: BorderRadius.circular(12.r),
+          onTap: onTap, // Main action: Manage Topics
+          child: Container(
+            padding: EdgeInsets.symmetric(horizontal: 16.w, vertical: 16.h),
+            child: Row(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                // Image or placeholder
+                if (lesson.imageUrl.isNotEmpty)
+                  ClipRRect(
+                    borderRadius: BorderRadius.circular(8.r),
+                    child: Image.network(
+                      lesson.imageUrl,
+                      width: 60.w,
+                      height: 60.w,
+                      fit: BoxFit.cover,
+                      errorBuilder: (_, __, ___) => Container(
+                        width: 60.w,
+                        height: 60.w,
+                        color: Colors.grey.shade200,
+                        child: Icon(Icons.image_not_supported, size: 28.sp, color: Colors.grey.shade500),
+                      ),
+                    ),
+                  )
+                else
+                  Container(
                     width: 60.w,
                     height: 60.w,
-                    color: Colors.grey.shade300,
-                    child: Icon(Icons.image_not_supported, size: 24.sp),
+                    decoration: BoxDecoration(
+                      color: Colors.grey.shade200,
+                      borderRadius: BorderRadius.circular(8.r),
+                    ),
+                    child: Icon(Icons.menu_book, size: 28.sp, color: Colors.grey.shade500),
+                  ),
+                16.horizontalSpace,
+                // Lesson info
+                Expanded(
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      Text(
+                        lesson.title,
+                        style: TextStyle(
+                          color: colors(context).text,
+                          fontSize: 15.sp,
+                          fontWeight: FontWeight.w700,
+                        ),
+                        maxLines: 1,
+                        overflow: TextOverflow.ellipsis,
+                        semanticsLabel: lesson.title,
+                      ),
+                      6.verticalSpace,
+                      Text(
+                        '${lesson.totalTopics} topics · ${lesson.group}',
+                        style: TextStyle(
+                          color: colors(context).secondaryText,
+                          fontSize: 12.sp,
+                        ),
+                        maxLines: 1,
+                        overflow: TextOverflow.ellipsis,
+                        semanticsLabel: '${lesson.totalTopics} topics in group ${lesson.group}',
+                      ),
+                    ],
                   ),
                 ),
-              )
-            else
-              Container(
-                width: 60.w,
-                height: 60.w,
-                decoration: BoxDecoration(
-                  color: Colors.grey.shade300,
-                  borderRadius: BorderRadius.circular(8.r),
+                8.horizontalSpace,
+                // Actions: Popup menu
+                PopupMenuButton<String>(
+                  color: colors(context).secondarySurface,
+                  shape: RoundedRectangleBorder(
+                    borderRadius: BorderRadius.circular(10.r),
+                  ),
+                  icon:  Icon(Icons.more_vert,color: colors(context).text),
+                  tooltip: 'More actions',
+                  onSelected: (value) {
+                    if (value == 'edit') {
+                      onEdit();
+                    } else if (value == 'delete') {
+                      onDelete();
+                    }
+                  },
+                  itemBuilder: (context) => [
+                    PopupMenuItem(
+                      value: 'edit',
+                      textStyle: TextStyle(
+                        color: colors(context).text,
+                      ),
+                      child: Row(
+                        children: [
+                           Icon(Icons.edit_outlined,
+                              size: 18,
+                              color: colors(context).text
+                          ),
+                          8.horizontalSpace,
+                          const Text('Edit'),
+                        ],
+                      ),
+                    ),
+                    PopupMenuItem(
+                      value: 'delete',
+                      child: Row(
+                        children: [
+                          const Icon(Icons.delete_outline, color: Colors.red, size: 18),
+                          8.horizontalSpace,
+                          const Text('Delete', style: TextStyle(color: Colors.red)),
+                        ],
+                      ),
+                    ),
+                  ],
                 ),
-                child: Icon(Icons.menu_book, size: 24.sp),
-              ),
-            12.horizontalSpace,
-            Expanded(
-              child: Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  Text(
-                    lesson.title,
-                    style: TextStyle(
-                      color: colors(context).text,
-                      fontSize: 14.sp,
-                      fontWeight: FontWeight.w600,
-                    ),
-                  ),
-                  4.verticalSpace,
-                  Text(
-                    '${lesson.totalTopics} topics · ${lesson.group}',
-                    style: TextStyle(
-                      color: colors(context).secondaryText,
-                      fontSize: 12.sp,
-                    ),
-                  ),
-                ],
-              ),
+              ],
             ),
-            IconButton(
-              icon: const Icon(Icons.edit_outlined),
-              onPressed: onEdit,
-            ),
-            IconButton(
-              icon: const Icon(Icons.delete_outline, color: Colors.red),
-              onPressed: onDelete,
-            ),
-            TextButton(
-              onPressed: onTap,
-              child: const Text('Manage Topics'),
-            ),
-          ],
+          ),
         ),
       ),
     );
