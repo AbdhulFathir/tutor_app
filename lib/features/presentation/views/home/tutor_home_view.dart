@@ -6,6 +6,7 @@ import '../../../../utils/app_assets.dart';
 import '../../../../utils/navigation_routes.dart';
 import '../../widgets/app_search_box.dart';
 import '../widgets/tutor_tile.dart';
+
 class TutorHomeView extends StatelessWidget {
   const TutorHomeView({super.key});
 
@@ -53,7 +54,7 @@ class TutorHomeView extends StatelessWidget {
                         ),
                         _CircleIconButton(
                           icon: Icons.notifications_none_rounded,
-                          onTap: () => Navigator.pushNamed(context, Routes.kTutorNotificationsView),
+                          onTap: () => Navigator.pushNamed(context, Routes.kTutorAnnouncementsView),
                         ),
                         10.horizontalSpace,
                         _CircleIconButton(
@@ -182,7 +183,7 @@ class TutorHomeView extends StatelessWidget {
                         ),
                         TutorTile(
                           icon: AppAssets.iconAnnouncement,
-                          label: 'Publish Announcements',
+                          label: 'Announcements',
                           onTap: () => Navigator.pushNamed(context, Routes.kTutorAnnouncementsView),
                         ),
                         TutorTile(
@@ -204,11 +205,6 @@ class TutorHomeView extends StatelessWidget {
                           icon: AppAssets.iconSetting,
                           label: 'Settings',
                           onTap: () => Navigator.pushNamed(context, Routes.kSettingsView),
-                        ),
-                        TutorTile(
-                          icon: AppAssets.iconBell,
-                          label: 'Notifications',
-                          onTap: () => Navigator.pushNamed(context, Routes.kTutorNotificationsView),
                         ),
                       ],
                     ),
@@ -288,4 +284,3 @@ class _CircleIconButton extends StatelessWidget {
     );
   }
 }
-

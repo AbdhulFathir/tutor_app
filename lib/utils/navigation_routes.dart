@@ -9,7 +9,6 @@ import '../features/presentation/views/lessons/manage_lesson_detail_view.dart';
 import '../features/presentation/views/lessons/manage_lessons_view.dart';
 import '../features/presentation/views/materials/upload_materials_view.dart';
 import '../features/presentation/views/notifications/notification_details_view.dart';
-import '../features/presentation/views/notifications/notifications_view.dart';
 import '../features/presentation/views/polls/polls_view.dart';
 import '../features/presentation/views/qr/qr_generate_view.dart';
 import '../features/presentation/views/qr/qr_home_view.dart';
@@ -58,7 +57,6 @@ class Routes {
   static const String kTutorManageAdminsView = "kTutorManageAdminsView";
   static const String kTutorAddAdminView = "kTutorAddAdminView";
   static const String kTutorEditAdminView = "kTutorEditAdminView";
-  static const String kTutorNotificationsView = "kTutorNotificationsView";
   static const String kNotificationDetailsView = "kNotificationDetailsView";
 
   static Route<dynamic> generateRoute(RouteSettings settings) {
@@ -205,11 +203,6 @@ class Routes {
             name: Routes.kTutorEditAdminView,
             arguments: settings.arguments,
           ),
-        );
-      case Routes.kTutorNotificationsView:
-        return MaterialPageRoute(
-          builder: (_) => const TutorNotificationsView(),
-          settings: const RouteSettings(name: Routes.kTutorNotificationsView),
         );
       case Routes.kNotificationDetailsView:
         return MaterialPageRoute(

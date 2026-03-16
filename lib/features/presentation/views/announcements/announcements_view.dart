@@ -7,6 +7,7 @@ import '../../../../../core/services/notification_service.dart';
 import '../../../../../core/theme/theme_data.dart';
 import '../../../../../utils/app_utils.dart';
 import '../../../../../utils/enums.dart';
+import '../../../../../utils/navigation_routes.dart';
 import '../../widgets/common_app_bar.dart';
 import '../../widgets/common_button.dart';
 import '../../widgets/common_text_field.dart';
@@ -25,7 +26,7 @@ class _AnnouncementsViewState extends ConsumerState<AnnouncementsView> {
   Widget build(BuildContext context) {
     return Scaffold(
       backgroundColor: colors(context).surface,
-      appBar: const CommonAppBar(title: 'Announcements'),
+      appBar: const CommonAppBar(title: 'Announcements & Notifications'),
       floatingActionButton: FloatingActionButton(
         onPressed: () => _showAddSheet(context),
         child: const Icon(Icons.add),
@@ -252,90 +253,106 @@ class _AnnouncementCard extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return Container(
-      padding: EdgeInsets.symmetric(horizontal: 16.w, vertical: 14.h),
-      decoration: BoxDecoration(
-        color: colors(context).secondarySurface,
-        borderRadius: BorderRadius.circular(10.r),
-        border: Border.all(color: colors(context).secondarySurfaceBorder),
-      ),
-      child: Row(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-          Expanded(
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                Row(
-                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                  children: [
-                    Text(
-                      title,
+    return InkWell(
+      onTap: () {
+        Navigator.pushNamed(
+          context,
+          Routes.kNotificationDetailsView,
+          arguments: {
+            'title': title,
+            'body': body,
+            'group': group,
+            'createdAt': date,
+          },
+        );
+      },
+      child: Container(
+        padding: EdgeInsets.symmetric(horizontal: 16.w, vertical: 14.h),
+        decoration: BoxDecoration(
+          color: colors(context).secondarySurface,
+          borderRadius: BorderRadius.circular(10.r),
+          border: Border.all(color: colors(context).secondarySurfaceBorder),
+        ),
+        child: Row(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            Expanded(
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  Row(
+                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                    children: [
+                      Text(
+                        title,
+                        style: TextStyle(
+                          color: colors(context).text,
+                          fontSize: 14.sp,
+                          fontWeight: FontWeight.w600,
+                        ),
+                      ),
+                      Text(
+                        AppUtils.getDate(date),
+                        style: TextStyle(
+                          color: colors(context).secondaryText,
+                          fontSize: 10.sp,
+                        ),
+                      ),
+                    ],
+                  ),
+                  4.verticalSpace,
+                  Container(
+                    padding: EdgeInsets.symmetric(horizontal: 6.w, vertical: 2.h),
+                    decoration: BoxDecoration(
+                      color: colors(context).text.withOpacity(0.1),
+                      borderRadius: BorderRadius.circular(4.r),
+                    ),
+                    child: Text(
+                      'To: $group',
                       style: TextStyle(
                         color: colors(context).text,
-                        fontSize: 14.sp,
+                        fontSize: 10.sp,
                         fontWeight: FontWeight.w600,
                       ),
                     ),
-                    Text(
-                      AppUtils.getDate(date),
-                      style: TextStyle(
-                        color: colors(context).secondaryText,
-                        fontSize: 10.sp,
-                      ),
-                    ),
-                  ],
-                ),
-                4.verticalSpace,
-                Container(
-                  padding: EdgeInsets.symmetric(horizontal: 6.w, vertical: 2.h),
-                  decoration: BoxDecoration(
-                    color: colors(context).text.withOpacity(0.1),
-                    borderRadius: BorderRadius.circular(4.r),
                   ),
-                  child: Text(
-                    'To: $group',
+                  8.verticalSpace,
+                  Text(
+                    body,
+                    maxLines: 2,
+                    overflow: TextOverflow.ellipsis,
                     style: TextStyle(
-                      color: colors(context).text,
-                      fontSize: 10.sp,
-                      fontWeight: FontWeight.w600,
+                      color: colors(context).secondaryText,
+                      fontSize: 12.sp,
                     ),
                   ),
-                ),
-                8.verticalSpace,
-                Text(
-                  body,
-                  style: TextStyle(
-                    color: colors(context).secondaryText,
-                    fontSize: 12.sp,
-                  ),
-                ),
-              ],
+                ],
+              ),
             ),
-          ),
-          IconButton(
-            icon: const Icon(Icons.delete_outline, size: 20),
-            onPressed: () {
-              showDialog(
-                context: context,
-                barrierDismissible: false,
-                builder: (_) => AppDialog(
-                  title: 'Delete Announcement',
-                  description: 'Are you sure you want to delete this announcement?',
-                  alertType: AlertType.FAIL,
-                  positiveButtonText: 'Delete',
-                  negativeButtonText: 'Cancel',
-                  onPositiveCallback: () {
-                    FirebaseFirestore.instance
-                        .collection('announcements')
-                        .doc(docId)
-                        .delete();
-                  },
-                ),
-              );
-            },
-          ),
-        ],
+            IconButton(
+              icon: const Icon(Icons.delete_outline, size: 20),
+              onPressed: () {
+                showDialog(
+                  context: context,
+                  barrierDismissible: false,
+                  builder: (_) => AppDialog(
+                    title: 'Delete Announcement',
+                    description: 'Are you sure you want to delete this announcement?',
+                    alertType: AlertType.FAIL,
+                    positiveButtonText: 'Delete',
+                    negativeButtonText: 'Cancel',
+                    onPositiveCallback: () {
+                      FirebaseFirestore.instance
+                          .collection('announcements')
+                          .doc(docId)
+                          .delete();
+                    },
+                  ),
+                );
+              },
+            ),
+          ],
+        ),
       ),
     );
   }
