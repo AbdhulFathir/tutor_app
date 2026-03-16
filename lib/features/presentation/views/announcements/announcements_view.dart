@@ -3,6 +3,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 
+import '../../../../../core/services/notification_service.dart';
 import '../../../../../core/theme/theme_data.dart';
 import '../../../../../utils/app_utils.dart';
 import '../../../../../utils/enums.dart';
@@ -182,14 +183,22 @@ class _AnnouncementsViewState extends ConsumerState<AnnouncementsView> {
                       setModalState(() => isSubmitting = true);
 
                       try {
+                        final targetGroup = selectedGroup ?? 'All';
+
                         await FirebaseFirestore.instance
                             .collection('announcements')
                             .add({
                           'title': title,
                           'body': body,
-                          'group': selectedGroup ?? 'All',
+                          'group': targetGroup,
                           'createdAt': FieldValue.serverTimestamp(),
                         });
+
+                        await notificationServiceProvider.sendNotification(
+                          title: title,
+                          body: body,
+                          targetGroup: targetGroup,
+                        );
 
                         if (!mounted) return;
                         Navigator.pop(context);
