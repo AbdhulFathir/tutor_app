@@ -1,4 +1,6 @@
 import 'package:flutter/material.dart';
+import '../features/presentation/views/admins/add_admin_view.dart';
+import '../features/presentation/views/admins/edit_admin_view.dart';
 import '../features/presentation/views/admins/manage_admins_view.dart';
 import '../features/presentation/views/announcements/announcements_view.dart';
 import '../features/presentation/views/class_groups/edit_group_view.dart';
@@ -53,6 +55,8 @@ class Routes {
   static const String kTutorResultsView = "kTutorResultsView";
   static const String kTutorTestSubmissionsView = "kTutorTestSubmissionsView";
   static const String kTutorManageAdminsView = "kTutorManageAdminsView";
+  static const String kTutorAddAdminView = "kTutorAddAdminView";
+  static const String kTutorEditAdminView = "kTutorEditAdminView";
   static const String kTutorNotificationsView = "kTutorNotificationsView";
 
   static Route<dynamic> generateRoute(RouteSettings settings) {
@@ -186,6 +190,19 @@ class Routes {
         return MaterialPageRoute(
           builder: (_) => const ManageAdminsView(),
           settings: const RouteSettings(name: Routes.kTutorManageAdminsView),
+        );
+      case Routes.kTutorAddAdminView:
+        return MaterialPageRoute(
+          builder: (_) => const AddAdminView(),
+          settings: const RouteSettings(name: Routes.kTutorAddAdminView),
+        );
+      case Routes.kTutorEditAdminView:
+        return MaterialPageRoute(
+          builder: (_) => const EditAdminView(),
+          settings: RouteSettings(
+            name: Routes.kTutorEditAdminView,
+            arguments: settings.arguments,
+          ),
         );
       case Routes.kTutorNotificationsView:
         return MaterialPageRoute(
